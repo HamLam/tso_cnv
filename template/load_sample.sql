@@ -1,34 +1,10 @@
-DROP TABLE IF EXISTS `cnv_sample_name_bwa_pileup_no_dup`;
-CREATE TABLE `cnv_sample_name_bwa_pileup_no_dup`(
-chr VARCHAR(32),
-pos INT,
-coverage INT,
-mapped_reads INT
-);
-LOAD DATA LOCAL INFILE 'cnv_sample_name_bwa_pileup_no_dup.txt' INTO TABLE `cnv_sample_name_bwa_pileup_no_dup` FIELDS TERMINATED BY '\t';
 CREATE INDEX `cnv_sample_name_pileup_nd` ON `cnv_sample_name_bwa_pileup_no_dup`(chr,pos);
-
-DROP TABLE IF EXISTS `cnv_sample_name_bwa_pileup`;
-CREATE TABLE `cnv_sample_name_bwa_pileup`(
-chr VARCHAR(32),
-pos INT,
-coverage INT
-);
-LOAD DATA LOCAL INFILE 'cnv_sample_name_bwa_pileup.txt' INTO TABLE `cnv_sample_name_bwa_pileup` FIELDS TERMINATED BY '\t';
 CREATE INDEX `cnv_sample_name_bwa_pileup_i1` ON `cnv_sample_name_bwa_pileup`(chr,pos);
-
-DROP TABLE IF EXISTS `cnv_sample_name_bowtie_pileup`;
-CREATE TABLE `cnv_sample_name_bowtie_pileup`(
-chr VARCHAR(32),
-pos INT,
-coverage INT
-);
-LOAD DATA LOCAL INFILE 'cnv_sample_name_bowtie2_pileup.txt' INTO TABLE `cnv_sample_name_bowtie_pileup` FIELDS TERMINATED BY '\t';
 CREATE INDEX `cnv_sample_name_bowtie_pileup_i1` ON `cnv_sample_name_bowtie_pileup`(chr,pos);
 
 DROP TABLE IF EXISTS `cnv_sample_name_exon_pileup`;
 CREATE TABLE `cnv_sample_name_exon_pileup` AS
-SELECT DISTINCT A.*, coverage FROM 
+SELECT DISTINCT A.*, coverage FROM
 tso_exon_contig_pileup A
 JOIN
 `cnv_sample_name_bwa_pileup_no_dup` B
@@ -38,7 +14,7 @@ CREATE INDEX `cnv_sample_name_exon_pileup_2` ON `cnv_sample_name_exon_pileup`(ch
 
 DROP TABLE IF EXISTS `cnv_sample_name_exon_bowtie`;
 CREATE TABLE `cnv_sample_name_exon_bowtie` AS
-SELECT DISTINCT A.*, coverage FROM 
+SELECT DISTINCT A.*, coverage FROM
 tso_exon_contig_pileup A
 JOIN
 `cnv_sample_name_bowtie_pileup` B
