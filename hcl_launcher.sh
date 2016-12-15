@@ -60,6 +60,7 @@ sed -e s,sample_path,"$sample_path",g -e s,sample_name,"$sample_name",g -e s,con
 -e s,tables_path,"$tables_path",g -e s,sample_email@umn.edu,"$email",g -e s,archive_path,"$archive_path",g -e s,sample_result,"$sample_result",g \
 -e s,code_path,"$current_path",g -e s,seq_db,"$seq_db",g < "$template_pwd/run_sample.pbs" > "$sample_path/run_cnv_$sample_name.pbs"
 
+## Changes HCL
 # control_pileup.sh
 sed -e s,control_name,"$control_name",g -e s,c_s1r1Fastq,"$c_s1r1Fastq",g -e s,c_s1r2Fastq,"$c_s1r2Fastq ",g \
 -e s,c_s2r1Fastq,"$c_s2r1Fastq",g -e s,c_s2r2Fastq,"$c_s2r2Fastq",g -e s,bwa_db_value,"$bwa_db_value",g \
@@ -67,6 +68,7 @@ sed -e s,control_name,"$control_name",g -e s,c_s1r1Fastq,"$c_s1r1Fastq",g -e s,c
 -e s,working_dir,"$sample_path",g\
 < "$template_pwd/control_pileup.sh" > "$sample_path/control_pileup.sh"
 
+## Changes HCL
 # sample_pileup.sh
 sed -e s,sample_name,"$sample_name",g -e s,s_s1r1Fastq,"$s_s1r1Fastq",g -e s,s_s1r2Fastq,"$s_s1r2Fastq ",g \
 -e s,s_s2r1Fastq,"$s_s2r1Fastq",g -e s,s_s2r2Fastq,"$s_s2r2Fastq",g -e s,bwa_db_value,"$bwa_db_value",g \
