@@ -19,6 +19,7 @@ cd $working_dir
 module load bwa/0.7.12_gcc-4.9.2_haswell/bwa
 module load bowtie2/2.2.4_gcc-4.9.2_haswell
 module load picard/1.140
+## Changes HCL
 module load samtools/1.2_gcc-4.9.2_haswell
 module load R/3.1.1
 module load bedtools/2.25.0/bin/bedtools
@@ -109,6 +110,7 @@ if [ "$?" = "0" ]; then
     echo "base tables already loaded"
 else
 # CREATE DATABASE
+## Changes HCL
     mysql --socket=$BASE/thesock -u root -e "CREATE DATABASE cnv;"
     # create a commands file for the base tables load operation for easy tracking and parallelization with parallel
     
@@ -130,6 +132,8 @@ else
 	echo "base_tables_loaded" >> $working_dir/completed.txt
     fi
 fi
+
+## Changes HCL 
 grep "Pre_Load_Control.sql" $working_dir/completed.txt > /dev/null 2>&1
 if  [ "$?" = "0" ]; then
     echo "Pre_Load_Control.sql already run"
@@ -162,6 +166,7 @@ else
     fi
 fi
 
+## Changes HCL
 grep "Pre_Load_Sample.sql" $working_dir/completed.txt > /dev/null 2>&1
  if  [ "$?" = "0" ]; then
     echo "Pre_Load_Sample.sql already run"
