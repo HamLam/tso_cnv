@@ -55,9 +55,6 @@ echo ${indexcomm3} >> $WORKING_PATH/indexcommands
 cat ${WORKING_PATH}/indexcommands | parallel -j +0 $1
 
 samtools view -H c_bwa.fixed.bam | grep "\@SQ" | sed 's/^.*SN://g' | cut -f1 |  xargs -I {} -n 1 -P 24 sh -c "samtools mpileup -BQ0 -d10000000 -f $ref  -r \"{}\" c_bwa.fixed.bam | cut -f 1,2,4 > cnv_control_name_bwa_pileup.\"{}\""
-
 samtools view -H c_bwa.fixed_nodup.bam | grep "\@SQ" | sed 's/^.*SN://g' | cut -f1 |  xargs -I {} -n 1 -P 24 sh -c "samtools mpileup -BQ0 -d10000000 -f $ref  -r \"{}\" c_bwa.fixed_nodup.bam | cut -f 1,2,4 > cnv_control_name_bwa_pileup_no_dup.\"{}\" "
-
-
 samtools view -H c_bowtie2.fixed.bam | grep "\@SQ" | sed 's/^.*SN://g' | cut -f1 |  xargs -I {} -n 1 -P 24 sh -c "samtools mpileup -BQ0 -d10000000 -f $ref  -r \"{}\" c_bowtie2.fixed.bam | cut -f 1,2,4 > cnv_control_name_bowtie_pileup.\"{}\""
 
