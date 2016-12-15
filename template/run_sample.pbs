@@ -22,6 +22,12 @@ module load picard/1.140
 module load samtools/1.2_gcc-4.9.2_haswell
 module load R/3.1.1
 module load bedtools/2.25.0/bin/bedtools
+module load python/2.7.5
+PYTHONPATH=/soft/python/2.7.1/lib/python2.7/site-packages
+export PYTHONPATH=/soft/python/2.7.5/lib/python2.7/site-packages:$PYTHONPATH
+LD_LIBRARY_PATH=/soft/python/2.7.1/lib
+export LD_LIBRARY_PATH=/soft/python/2.7.5/lib:$LD_LIBRARY_PATH
+
 
 _now=$(date +"%Y-%m-%d_%H-%M")
 
@@ -106,15 +112,17 @@ else
     mysql --socket=$BASE/thesock -u root -e "CREATE DATABASE cnv;"
     
     echo "Load tables"
-    mysql --socket=$BASE/thesock -u root cnv < $table_path/training_data_2016_07.sql
-    mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_data.sql
-    mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_exon_60bp_segments_main_data.sql
-    mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_exon_60bp_segments_pileup.sql
-    mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_exon_60bp_segments_window_data.sql
-    mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_exon_contig_pileup.sql
-    mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_reference_exon.sql
-    mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_reference.sql
-    mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_windows_padded_pileup.sql
+   echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/training_data_2016_07.sql" >> $working_dir/basetables_load_commands
+   echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_data.sql" >> $working_dir/basetables_load_commands
+   echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_exon_60bp_segments_main_data.sql" >> $working_dir/basetables_load_commands
+   echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_exon_60bp_segments_pileup.sql" >> $working_dir/basetables_load_commands
+   echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_exon_60bp_segments_window_data.sql">> $working_dir/basetables_load_commands
+   echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_exon_contig_pileup.sql" >> $working_dir/basetables_load_commands
+   echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_reference_exon.sql" >> $working_dir/basetables_load_commands
+   echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_reference.sql" >> $working_dir/basetables_load_commands
+   echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_windows_padded_pileup.sql" >> $working_dir/basetables_load_commands
+   cat $working_dir/basetables_load_commands | parallel -j +0 $1
+    
     if [[ $? -ne 0 ]] ; then
 	echo "MySQL base table loading failed" >&2
 	exit 1
@@ -122,6 +130,22 @@ else
 	echo "base_tables_loaded" >> $working_dir/completed.txt
     fi
 fi
+grep "Pre_Load_Control.sql" $working_dir/completed.txt > /dev/null 2>&1
+if  [ "$?" = "0" ]; then
+    echo "Pre_Load_Control.sql already run"
+else
+ echo "Run Pre_Load_Control.sql"
+    mysql --socket=$BASE/thesock -u root cnv < Pre_Load_Control.sql
+    if [[ $? -ne 0 ]] ; then
+        echo "Run Pre_Load_Control.sql failed" >&2
+        mysqladmin --socket=$BASE/thesock shutdown -u root
+        exit 1
+    else
+     echo "Pre_Load_Control.sql" >> $working_dir/completed.txt
+ fi
+fi
+mysqlimport --local --socket=$BASE/thesock -u root cnv --use-threads=24 cnv_control_name_bwa_pileup_no_dup.* cnv_control_name_bwa_pileup.* cnv_control_name_bowtie_pileup.*
+
 
 grep "load_control.sql" $working_dir/completed.txt > /dev/null 2>&1
 if [ "$?" = "0" ]; then
@@ -137,6 +161,24 @@ else
 	echo "load_control.sql" >> $working_dir/completed.txt
     fi
 fi
+
+grep "Pre_Load_Sample.sql" $working_dir/completed.txt > /dev/null 2>&1
+ if  [ "$?" = "0" ]; then
+    echo "Pre_Load_Sample.sql already run"
+else
+ echo "Run Pre_Load_Sample.sql"
+    mysql --socket=$BASE/thesock -u root cnv < Pre_Load_Sample.sql
+     if [[ $? -ne 0 ]] ; then
+        echo "Run Pre_Load_Sample.sql failed" >&2
+        mysqladmin --socket=$BASE/thesock shutdown -u root
+        exit 1
+else
+     echo "Pre_Load_Sample.sql" >> $working_dir/completed.txt
+ fi
+fi
+
+mysqlimport --local --socket=$BASE/thesock -u root cnv --use-threads=24 cnv_sample_name_bwa_pileup_no_dup.* cnv_sample_name_bwa_pileup.* cnv_sample_name_bowtie_pileup.*
+
 
 grep "load_sample.sql" $working_dir/completed.txt > /dev/null 2>&1
 if [ "$?" = "0" ]; then
