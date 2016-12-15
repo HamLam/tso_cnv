@@ -110,7 +110,7 @@ if [ "$?" = "0" ]; then
 else
 # CREATE DATABASE
     mysql --socket=$BASE/thesock -u root -e "CREATE DATABASE cnv;"
-    
+    # create a commands file for the base tables load operation for easy tracking
     echo "Load tables"
    echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/training_data_2016_07.sql" >> $working_dir/basetables_load_commands
    echo "mysql --socket=$BASE/thesock -u root cnv < $table_path/tso_data.sql" >> $working_dir/basetables_load_commands
